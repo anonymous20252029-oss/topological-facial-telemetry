@@ -117,13 +117,29 @@ m3.metric("Clinical Decision", diag)
 c1, c2 = st.columns(2)
 with c1:
     st.subheader("1. Dynamic 3D Anthropometric Mesh")
-    fig_3d = go.Figure()
-    fig_3d.add_trace(go.Scatter3d(x=left_pts[:, 0], y=left_pts[:, 1], z=left_pts[:, 2],
-                                 mode='markers+lines', marker=dict(size=4, color='#103662'), name='Left Hemiface'))
-    fig_3d.add_trace(go.Scatter3d(x=right_pts[:, 0], y=right_pts[:, 1], z=right_pts[:, 2],
-                                 mode='markers+lines', marker=dict(size=4, color='#961E1E'), name='Right Hemiface'))
-    fig_3d.update_layout(scene=dict(aspectmode='data'), height=350, margin=dict(l=0, r=0, b=0, t=10))
-    st.plotly_chart(fig_3d, use_container_width=True)
+    import matplotlib.pyplot as plt
+    
+    fig_3d = plt.figure(figsize=(4.5, 3.5), dpi=150)
+    ax = fig_3d.add_subplot(111, projection='3d')
+    
+    # Vẽ nửa mặt trái và phải
+    ax.scatter(left_pts[:, 0], left_pts[:, 1], left_pts[:, 2], c='#103662', s=15, label='Left Hemiface')
+    ax.scatter(right_pts[:, 0], right_pts[:, 1], right_pts[:, 2], c='#961E1E', s=15, marker='^', label='Right (Palsy)')
+    
+    # Kết nối các điểm vòng mắt tạo vòng khép kín H1
+    ax.plot(left_pts[8:14, 0], left_pts[8:14, 1], left_pts[8:14, 2], c='#103662', lw=1.2)
+    ax.plot(right_pts[8:14, 0], right_pts[8:14, 1], right_pts[8:14, 2], c='#961E1E', lw=1.2)
+    
+    ax.view_init(elev=15, azim=-70)
+    ax.set_xlim([-50, 50])
+    ax.set_ylim([-40, 55])
+    ax.set_zlim([-20, 20])
+    ax.set_title(f"Head Yaw: {yaw_angle}° | Palsy: {palsy_severity}mm", fontsize=8)
+    ax.legend(fontsize=7, loc='upper left')
+    plt.tight_layout()
+    
+    st.pyplot(fig_3d)
+    plt.close(fig_3d)
 
 with c2:
     st.subheader("2. Bilateral Persistence Diagrams ($H_1$)")
